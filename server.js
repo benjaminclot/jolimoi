@@ -23,11 +23,42 @@ fastify.register(require("@fastify/static"), {
   prefix: "/",
 });
 
-fastify.post("/romanize", (request, reply) =>
-  reply.send({
-    roman: Utils.romanize(parseInt(request.body.integer, 10)),
-  })
-);
+let clients = [];
+
+fastify.get("/stream", (request, reply) => {
+  const id = Utils.getUniqueIdentifierStr();
+  const headers = {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  };
+
+  reply.raw.writeHead(200, headers);
+  reply.raw.write(`event: connect\ndata: ${id}\n\n`);
+
+  const client = {
+    id,
+    reply,
+  };
+
+  clients.push(client);
+
+  request.raw.on("close", () => {
+    clients = clients.filter((c) => c.id !== id);
+  });
+});
+
+fastify.post("/romanize", (request, reply) => {
+  const roman = Utils.romanize(parseInt(request.body.integer, 10));
+
+  clients
+    .filter((client) => client.id === request.body.clientId)
+    .forEach((client) => {
+      client.reply.raw.write(`data: ${roman}\n\n`);
+    });
+
+  return reply.send();
+});
 
 fastify.listen({ port: 3000 }, (err, address) => {
   if (err) {

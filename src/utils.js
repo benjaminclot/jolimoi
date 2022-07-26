@@ -1,5 +1,13 @@
 class Utils {
   /**
+   * Generates a random string
+   * @returns {string}
+   */
+  static getUniqueIdentifierStr() {
+    return Math.random().toString(16).substring(2);
+  }
+
+  /**
    * Returns the romanized version of an integer (as romans intended it: from 1 to 3999)
    * @param {!number} int
    * @returns {string}
