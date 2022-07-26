@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jolimoi - Step 1</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="content" role="main">
+        <h1>&nbsp;</h1>
+        <p>Convert integer numbers into roman numerals (XHR).</p>
+        <form>
+          <label for="integer">Integer:</label>
+          <input type="text" name="integer" id="integer" pattern="([0-9]|[1-9][0-9]|100)" required />
+          <button type="submit">Convert</button>
+        </form>
+      </div>
+    </div>
+    <script>
+      (() => {
+        "use strict";
+
+        const form = document.querySelector("form");
+        const input = document.querySelector("input");
+        const result = document.querySelector("h1");
+
+        input.addEventListener("invalid", (e) => {
+          e.target.setCustomValidity("");
+
+          if (!e.target.validity.valid) {
+            e.target.setCustomValidity("Enter a valid number, between 0 and 100");
+          }
+        });
+
+        input.addEventListener("input", (e) => {
+          e.target.setCustomValidity("");
+        });
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          input.value = parseInt(input.value, 10);
+
+          fetch("/romanize", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              integer: input.value,
+            }),
+          })
+          .then((response) => response.json())
+          .then((data) => {
+            result.innerHTML = data.roman ? data.roman : "&nbsp;";
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

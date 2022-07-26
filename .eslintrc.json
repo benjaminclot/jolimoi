@@ -1,0 +1,30 @@
+{
+  "env": {
+    "node": true
+  },
+  "extends": ["airbnb-base", "prettier", "plugin:node/recommended-script"],
+  "parserOptions": {
+   "ecmaVersion": 2022
+  },
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "no-unused-vars": "warn",
+    "no-console": "off",
+    "func-names": "off",
+    "no-process-exit": "off",
+    "object-shorthand": "off",
+    "class-methods-use-this": "off",
+    "import/extensions": ["error", "always", { "ignorePackages": true } ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.js"
+      ],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}
