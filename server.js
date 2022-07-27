@@ -44,9 +44,11 @@ fastify.get("/stream", (request, reply) => {
 });
 
 fastify.post("/romanize", (request, reply) => {
-  const roman = Utils.romanize(parseInt(request.body.integer, 10));
+  if (clients[request.body.clientId]) {
+    const roman = Utils.romanize(parseInt(request.body.integer, 10));
 
-  clients[request.body.clientId].raw.write(`data: ${roman}\n\n`);
+    clients[request.body.clientId].raw.write(`data: ${roman}\n\n`);
+  }
 
   return reply.send();
 });
