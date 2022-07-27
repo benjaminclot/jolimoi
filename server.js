@@ -23,7 +23,7 @@ fastify.register(require("@fastify/static"), {
   prefix: "/",
 });
 
-let clients = [];
+const clients = {};
 
 fastify.get("/stream", (request, reply) => {
   const id = Utils.getUniqueIdentifierStr();
@@ -36,26 +36,17 @@ fastify.get("/stream", (request, reply) => {
   reply.raw.writeHead(200, headers);
   reply.raw.write(`event: connect\ndata: ${id}\n\n`);
 
-  const client = {
-    id,
-    reply,
-  };
-
-  clients.push(client);
+  clients[id] = reply;
 
   request.raw.on("close", () => {
-    clients = clients.filter((c) => c.id !== id);
+    delete clients[id];
   });
 });
 
 fastify.post("/romanize", (request, reply) => {
   const roman = Utils.romanize(parseInt(request.body.integer, 10));
 
-  clients
-    .filter((client) => client.id === request.body.clientId)
-    .forEach((client) => {
-      client.reply.raw.write(`data: ${roman}\n\n`);
-    });
+  clients[request.body.clientId].raw.write(`data: ${roman}\n\n`);
 
   return reply.send();
 });
